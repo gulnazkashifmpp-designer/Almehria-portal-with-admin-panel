@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AL-Mehria Computer Academy - رجسٹریشن سسٹم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library for capturing the form data as a screenshot -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        /* --- Jameel Noori Nastaliq Font Integration --- */
+        @font-face {
+            font-family: 'Jameel Noori Nastaliq';
+            src: url('https://raw.githubusercontent.com/Tajudeen98/Jameel-Noori-Nastaleeq-Font/main/Jameel%20Noori%20Nastaleeq%20Kasheeda.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* Custom Styling for Enhanced Visuals */
+        .header-bg {
+            background-color: #3b82f6; /* Blue 500 */
+            background-image: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); /* Deep Blue Gradient */
+        }
+        .accent-color {
+            color: #10b981; /* Emerald 500 for success/fee */
+        }
+        .accent-bg {
+            background-color: #10b981;
+        }
+
+        /* Apply Nastaliq font only when the language is Urdu (dir="rtl") */
+        html[dir="rtl"] body {
+            font-family: 'Jameel Noori Nastaliq', 'Noto Nastaliq Urdu', 'Arial', sans-serif;
+            line-height: 1.7; 
+        }
+
+        /* Ensure input fields and standard UI elements remain legible */
+        input, select, button, textarea {
+            font-family: 'Jameel Noori Nastaliq', 'Noto Nastaliq Urdu', 'Arial', sans-serif; 
+            line-height: 1.25; 
+        }
+        /* Fix for File Input in RTL */
+        input[type="file"] {
+            padding-left: 0.5rem; 
+            padding-right: 0.5rem;
+        }
+
+        /* Responsive Table styling for better mobile view */
+        @media (max-width: 768px) {
+            #admin-panel table {
+                display: block;
+                width: 100%;
+            }
+            #admin-panel thead {
+                display: none; /* Hide header on small screens */
+            }
+            #admin-panel tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 0.5rem;
+                padding: 0.5rem;
+            }
+            #admin-panel td {
+                display: block;
+                text-align: right !important; /* Force RTL alignment */
+                border-bottom: 1px solid #f1f5f9;
+                padding: 0.5rem 0;
+            }
+            #admin-panel td:last-child {
+                border-bottom: none;
+            }
+            /* Add labels to cells using data attributes if needed, but for simplicity, we rely on bolding text within cells */
+        }
+
+        /* Media Print Styles: Ensures clean printing of the receipt */
+        @media print {
+            body { font-family: 'Jameel Noori Nastaliq', 'Arial', sans-serif; margin: 0; padding: 0; }
+            header, nav, #registration-form, #print-share-note, #admin-login-form, #login-section, #secret-trigger, footer, .no-print, #backup-recovery-section, #language-toggle-button, #student-data-view .no-print, .container, #custom-modal { display: none; }
+            #admin-panel { display: block !important; width: 100%; padding: 0; margin: 0; }
+            /* Show only the targeted printable element */
+            #student-data-view { 
+                display: block !important; 
+                width: 100%; 
+                margin: 0; 
+                padding: 0;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 10000;
+            }
+            .printable-data-card { 
+                background-color: #ffffff; 
+                border: 3px solid #3b82f6; /* Academy color border */
+                padding: 25px; 
+                border-radius: 8px;
+                box-shadow: none; /* Remove shadow for print */
+                width: 100%;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            .print-only-show { display: block !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 max-w-5xl">
+
+        <header class="relative py-8 header-bg text-white rounded-lg shadow-2xl mb-8">
+            <!-- 1. Language Toggle Button (Top Right/Left) -->
+            <button id="language-toggle-button" class="absolute top-3 right-3 text-xs rounded-full bg-white text-blue-700 font-bold hover:bg-gray-100 transition duration-150 py-1 px-2" style="font-size: 0.75rem;">
+                Switch to English
+            </button>
+            
+            <!-- 2. Connection Status (Hidden) -->
+            <div id="connection-status" class="hidden">
+                انٹرنیٹ کا انتظار...
+            </div>
+            
+            <!-- 3. Main Content (Center) -->
+            <div class="text-center p-4 pt-2">
+                <h1 class="text-4xl font-extrabold mb-1" data-key="academyTitle">💻 المہریہ کمپیوٹر اکیڈمی</h1>
+                <p class="text-lg font-medium" data-key="academyLocation">مخدوم پور پہوڑاں</p>
+                
+                <!-- 4. Prominent Contact Number -->
+                <p class="mt-3 text-xl font-extrabold text-yellow-300" data-key="academyContactHeader">
+                    📞 0302-7822058
+                </p>
+            </div>
+
+            <!-- Secret trigger for admin login -->
+            <p id="secret-trigger" class="text-sm mt-3 cursor-pointer opacity-50 hover:opacity-100 transition duration-300 underline" data-key="adminLoginLink">
+                ایڈمن لاگ ان
+            </p>
+        </header>
+
+        <!-- رجسٹریشن فارم (Student Form) -->
+        <section id="registration-form" class="bg-white p-6 md:p-8 rounded-xl shadow-2xl mb-8 border-t-8 border-emerald-500">
+            <h2 class="text-2xl font-bold mb-6 text-blue-800 flex items-center" data-key="registerNewStudentTitle">
+                <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM12 10H8m-2 0H6m-4 0v11a1 1 0 001 1h16a1 1 0 001-1V10a2 2 0 00-2-2h-3m-6 0h-3"></path></svg>
+                نیا اسٹوڈنٹ رجسٹر کریں
+            </h2>
+            <div id="student-data-capture-area"> 
+                <form id="student-form" class="space-y-6">
+                    
+                    <!-- ڈپلومہ اور فیس سیکشن -->
+                    <div class="p-4 border border-blue-200 bg-blue-50 rounded-lg grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="md:col-span-2">
+                            <label for="diploma-name" class="block text-sm font-medium text-gray-700 flex items-center" data-key="selectDiplomaLabel"><span class="ml-1 text-blue-600">🎓</span> منتخب ڈپلومہ/کورس:</label>
+                            <select id="diploma-name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white focus:ring-blue-500 focus:border-blue-500" data-key-group="diplomaOptions">
+                                <option value="">--- منتخب کریں ---</option>
+                                <option value="Dip. Office Management">ڈپلومہ آفس مینجمنٹ</option>
+                                <option value="Dip. Computer Hardware">ڈپلومہ کمپیوٹر ہارڈویئر</option>
+                                <option value="Window Application">ونڈو ایپلیکیشن کورس</option>
+                                <option value="Graphics Designing">گرافکس ڈیزائننگ</option>
+                                <option value="Web Development">ویب ڈویلپمنٹ</option>
+                                <option value="Other">دیگر...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="fee-paid" class="block text-sm font-medium text-gray-700 flex items-center" data-key="actualFeeLabel"><span class="ml-1 text-green-600">💰</span> اصل فیس (PKR):</label>
+                            <input type="number" id="fee-paid" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500">
+                        </div>
+                        <div>
+                            <label for="discount-given" class="block text-sm font-medium text-gray-700 flex items-center" data-key="discountLabel"><span class="ml-1 text-red-600">📉</span> رعایت/ڈسکاؤنٹ (PKR):</label>
+                            <input type="number" id="discount-given" value="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-red-500 focus:border-red-500">
+                        </div>
+                    </div>
+
+                    <!-- Payment Method & Final Fee Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6">
+                         <div class="md:col-span-1">
+                            <label for="payment-method" class="block text-sm font-medium text-gray-700 flex items-center" data-key="paymentMethodLabel"><span class="ml-1 text-purple-600">💳</span> ادائیگی کا طریقہ:</label>
+                            <select id="payment-method" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white focus:ring-purple-500 focus:border-purple-500" data-key-group="paymentMethodOptions">
+                                <option value="">--- منتخب کریں ---</option>
+                                <option value="Cash">کیش (Cash)</option>
+                                <option value="JazzCash">جاز کیش (JazzCash)</option>
+                                <option value="Easypaisa">ایزی پیسہ (Easypaisa)</option>
+                                <option value="Bank Transfer">بینک ٹرانسفر</option>
+                            </select>
+                        </div>
+                         <div class="md:col-span-2">
+                            <p class="block text-sm font-medium text-gray-700" data-key="finalFeeDisplayLabel">فائنل فیس (رعایت کے بعد):</p>
+                            <p id="final-fee-display" class="mt-1 block w-full border-2 border-green-500 rounded-md shadow-lg p-3 bg-green-50 font-extrabold text-xl accent-color">
+                                0 PKR
+                            </p>
+                            <input type="hidden" id="final-fee-value" name="final-fee-value" value="0">
+                        </div>
+                    </div>
+
+                    <!-- متنی فیلڈز -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div><label for="student-name" class="block text-sm font-medium text-gray-700" data-key="studentNameLabel">اسٹوڈنٹ کا نام:</label><input type="text" id="student-name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></div>
+                        <div><label for="father-name" class="block text-sm font-medium text-gray-700" data-key="fatherNameLabel">والد کا نام:</label><input type="text" id="father-name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></div>
+                        <div><label for="cnic-number" class="block text-sm font-medium text-gray-700" data-key="cnicLabel">شناختی کارڈ نمبر (CNIC):</label><input type="text" id="cnic-number" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div><label for="phone-number" class="block text-sm font-medium text-gray-700" data-key="phoneLabel">فون نمبر:</label><input type="tel" id="phone-number" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></div>
+                        <div><label for="whatsapp-number" class="block text-sm font-medium text-gray-700" data-key="whatsappLabel">واٹس ایپ نمبر:</label><input type="tel" id="whatsapp-number" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></div>
+                        <div class="md:col-span-1"><label for="address" class="block text-sm font-medium text-gray-700" data-key="addressLabel">ایڈریس:</label><input type="text" id="address" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></div>
+                    </div>
+                    
+                    <hr class="my-4 border-gray-200">
+
+                    <!-- تصویری فیلڈز (5 عدد) -->
+                    <div class="p-4 border border-red-300 bg-red-50 rounded-md">
+                        <p class="font-bold text-lg mb-2 text-red-800 flex items-center" data-key="documentSectionTitle">
+                            <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            دستاویزات اور تصاویر (5 فائلیں)
+                        </p>
+                        <!-- Updated Document Note -->
+                        <p class="text-sm text-red-700 mb-3" data-key="documentNote">**اہم:** فائلیں براہ راست کلاؤڈ میں **محفوظ نہیں ہوں گی**۔ صرف فارم کا اسکرین شاٹ محفوظ ہوگا۔ فائلوں کو جمع کرانے کی یہ جگہ صرف آپ کی لوکل فائلز کے نام شامل کرنے کے لیے ہے۔</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Removed 'required' from all file inputs as they are not uploaded -->
+                            <div><label for="pic-student" class="block text-sm font-medium text-gray-700" data-key="picStudentLabel">1. اسٹوڈنٹ کی تصویر:</label><input type="file" id="pic-student" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white"></div>
+                            <div><label for="cnic-student-front" class="block text-sm font-medium text-gray-700" data-key="cnicStudentFrontLabel">2. اسٹوڈنٹ CNIC (فرنٹ):</label><input type="file" id="cnic-student-front" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white"></div>
+                            <div><label for="cnic-student-back" class="block text-sm font-medium text-gray-700" data-key="cnicStudentBackLabel">3. اسٹوڈنٹ CNIC (بیک):</label><input type="file" id="cnic-student-back" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white"></div>
+                            <div><label for="cnic-father-front" class="block text-sm font-medium text-gray-700" data-key="cnicFatherFrontLabel">4. والد CNIC (فرنٹ):</label><input type="file" id="cnic-father-front" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white"></div>
+                            <div><label for="cnic-father-back" class="block text-sm font-medium text-gray-700" data-key="cnicFatherBackLabel">5. والد CNIC (بیک):</label><input type="file" id="cnic-father-back" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-button" class="w-full py-3 px-4 rounded-md shadow-lg text-lg font-bold text-white accent-bg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition duration-150" data-key="submitButtonText">
+                        ✅ رجسٹر کریں اور ڈیٹا محفوظ کریں
+                    </button>
+                    <p id="loading-message" class="hidden text-center text-blue-500 font-semibold mt-2" data-key="loadingMessage">
+                        ڈیٹا محفوظ کیا جا رہا ہے... براہ کرم انتظار کریں۔
+                    </p>
+                </form>
+            </div>
+            
+            <!-- رجسٹریشن کے بعد یہ سیکشن شو ہو گا -->
+            <div id="registration-success" class="hidden mt-6 p-4 border border-green-400 bg-green-50 rounded-md text-green-700">
+                <p class="font-bold text-lg" data-key="registrationSuccessMsg">مبارک ہو! آپ کا رجسٹریشن مکمل ہو چکا ہے۔</p>
+                <p class="mt-2 text-sm" data-key="screenshotNote">براہ کرم اسکرین شاٹ کو محفوظ کر لیں، یہ آپ کے ریکارڈ کا ثبوت ہے۔</p>
+                
+                <div class="mt-3 flex gap-4 flex-wrap">
+                    <button id="whatsapp-share-after-reg" class="py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white accent-bg hover:bg-green-700" data-key="whatsappShareButton">
+                        💬 واٹس ایپ پر رجسٹریشن شیئر کریں
+                    </button>
+                    <button id="print-after-reg" class="py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700" data-key="printButton">
+                        🖨️ رسید پرنٹ کریں
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ایڈمن لاگ ان سیکشن (Hidden by default) -->
+        <section id="login-section" class="hidden bg-white p-6 rounded-lg shadow-xl border-t-4 border-red-500 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-red-700 flex items-center" data-key="adminLoginTitle">
+                <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v3h8z"></path></svg>
+                ایڈمن پینل لاگ ان
+            </h2>
+            <form id="admin-login-form" class="space-y-4 max-w-sm mx-auto">
+                <div>
+                    <label for="admin-password" class="block text-sm font-medium text-gray-700" data-key="passwordLabel">پاس ورڈ:</label>
+                    <input type="password" id="admin-password" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-red-500 focus:border-red-500">
+                </div>
+                <button type="submit" class="w-full py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700" data-key="openAdminPanelButton">
+                    🔓 ایڈمن پینل کھولیں
+                </button>
+            </form>
+        </section>
+
+        <!-- اسٹوڈنٹ کا ڈیٹا دیکھیں (Admin Panel View - Hidden by default) -->
+        <section id="admin-panel" class="hidden bg-white p-6 rounded-xl shadow-2xl border-t-4 border-purple-500">
+            <h2 class="text-2xl font-bold mb-4 text-purple-700 flex items-center" data-key="registeredStudentsDataTitle">
+                <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                رجسٹرڈ اسٹوڈنٹس کا ڈیٹا
+            </h2>
+            
+            <div id="print-share-note" class="no-print bg-purple-50 border-r-4 border-purple-400 p-4 mb-4 text-sm text-purple-700" data-key="adminDataNote">
+                **اہم:** تمام ڈیٹا کلاؤڈ پر محفوظ ہے اور آف لائن بھی دستیاب ہے۔
+            </div>
+
+            <!-- Enhanced mobile table styling implemented via CSS media query -->
+            <div class="overflow-x-auto shadow-lg rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200 text-right">
+                    <thead>
+                        <tr>
+                            <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" data-key="tableHeaderHash">#</th>
+                            <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" data-key="tableHeaderDate">تاریخ و وقت</th>
+                            <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" data-key="tableHeaderNameCourse">نام/کورس</th>
+                            <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" data-key="tableHeaderFeeDiscount">فیس/رعایت</th>
+                            <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" data-key="tableHeaderContact">رابطہ</th>
+                            <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider no-print" data-key="tableHeaderAction">عمل</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- ڈیٹا یہاں JavaScript اور Firestore کے ذریعے آئے گا -->
+                    </tbody>
+                </table>
+            </div>
+
+            <p id="no-data-message" class="text-center p-4 text-gray-500 hidden" data-key="noDataMessage">ابھی تک کوئی ڈیٹا محفوظ نہیں ہے۔</p>
+
+            <!-- نیا سیکشن: بیک اپ اور ریکوری -->
+            <div id="backup-recovery-section" class="mt-8 pt-4 border-t border-dashed border-gray-300 no-print">
+                <h3 class="text-xl font-bold mb-4 text-orange-700 flex items-center" data-key="backupRecoveryTitle">
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    بیک اپ (JSON) اور ریکوری
+                </h3>
+                
+                <p class="text-sm text-gray-600 mb-4" data-key="backupNote">ڈیٹا کریش سے بچاؤ کے لیے، تمام اسٹوڈنٹس کا ڈیٹا ایک JSON فائل میں ڈاؤن لوڈ کریں۔ یہ فائل کسی بھی نئی اکیڈمی ایپ میں اپ لوڈ ہو سکتی ہے۔</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 1. بیک اپ ڈاؤن لوڈ -->
+                    <div class="p-4 border border-blue-400 bg-blue-50 rounded-lg">
+                        <h4 class="font-semibold text-blue-700 mb-3" data-key="downloadBackupTitle">ڈیٹا بیک اپ (JSON فائل میں ڈاؤن لوڈ کریں)</h4>
+                        <button onclick="downloadJsonBackup()" class="w-full py-2 px-4 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700 text-sm font-medium" data-key="downloadBackupButton">
+                            ⬇️ تمام ڈیٹا ڈاؤن لوڈ کریں (.json)
+                        </button>
+                    </div>
+
+                    <!-- 2. ڈیٹا امپورٹ/ریکوری -->
+                    <div class="p-4 border border-green-400 bg-green-50 rounded-lg">
+                        <h4 class="font-semibold text-green-700 mb-3" data-key="importRecoveryTitle">ڈیٹا امپورٹ/ریکوری (JSON فائل اپ لوڈ کریں)</h4>
+                        <input type="file" id="import-json-file" accept=".json" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white" onchange="handleImportFile(event)">
+                        <p id="import-status" class="mt-2 text-xs text-gray-600 hidden"></p>
+                    </div>
+                </div>
+            </div>
+            
+        </section>
+
+        <!-- پرنٹ ویو ایریا (Hidden by default) -->
+        <div id="student-data-view" class="hidden mt-8 p-6 border border-dashed border-gray-400">
+            <!-- پرنٹ کے لیے منتخب کردہ ڈیٹا یہاں لوڈ ہوگا -->
+        </div>
+
+    </div>
+    
+    <!-- Custom Modal for Alerts/Confirmations (Replaces window.confirm/alert) -->
+    <div id="custom-modal" class="hidden fixed inset-0 z-50 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full mx-auto" dir="rtl">
+            <h3 id="modal-title" class="text-xl font-bold mb-4 text-red-700" data-key="modalDefaultTitle">نوٹیفکیشن</h3>
+            <p id="modal-message" class="mb-6 text-gray-700"></p>
+            <div id="modal-actions" class="flex justify-end space-x-reverse space-x-4">
+                <!-- Buttons will be dynamically added -->
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER: Added Academy Contact/Instructor Info (Updated for alignment) -->
+    <footer class="text-center text-gray-600 text-sm py-4 mt-6">
+        <p data-key="instructorName">👨‍🏫 انسٹرکٹر: محمد کاشف اسماعیل</p>
+        
+        <!-- Contact number: Uses dir="ltr" on inline-block for stability across languages -->
+        <p data-key="contactNumber" dir="ltr" class="inline-block">📞 رابطہ: 0302-7822058</p> 
+        
+        <!-- Facebook Link: Uses dir="ltr" on inline-block for stability of URL -->
+        <p class="mt-1 inline-block" dir="ltr">
+            <!-- Label part, handled by data-key for text -->
+            <span data-key="facebookLabel">🌐 فیس بک: </span> 
+            <!-- Link part, always LTR -->
+            <a href="https://www.facebook.com/share/1AoZMaekNP/" target="_blank" id="facebook-url-link" class="text-blue-600 hover:text-blue-800 underline font-bold">AL-Mehria Computer Academy</a>
+        </p>
+        <p class="text-xs mt-1" data-key="copyrightNote">© المہریہ کمپیوٹر اکیڈمی - تمام حقوق محفوظ ہیں۔</p>
+    </footer>
+
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, setLogLevel, enableIndexedDbPersistence, query, getDocs, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // IMPORTANT SECURITY NOTE: 
+        // The admin password is hardcoded here ("1234"). For a real-world application, 
+        // this must be replaced with Firebase Authentication for proper security.
+        const ADMIN_PASSWORD = "1234";
+        
+        const NEW_CONTACT = '0302-7822058'; 
+        const FACEBOOK_URL = 'https://www.facebook.com/share/1AoZMaekNP/';
+        
+        const MANAGER_INFO_URDU = `محمد کاشف اسماعیل (${NEW_CONTACT})`; 
+        const MANAGER_INFO_ENGLISH = `Muhammad Kashif Ismail (${NEW_CONTACT})`;
+
+        
+        let app, db, auth, userId = null;
+        let isAuthReady = false;
+        let currentLanguage = 'ur'; // Default language
+
+        // Firestore Path
+        let STUDENTS_COLLECTION_PATH;
+        
+        // --- TRANSLATION DATA ---
+        const translations = {
+            'ur': {
+                // ... (Existing translations remain mostly the same) ...
+                // Header (UPDATED)
+                academyTitle: '💻 المہریہ کمپیوٹر اکیڈمی', 
+                academyLocation: 'مخدوم پور پہوڑاں', 
+                academyContactHeader: `📞 ${NEW_CONTACT}`, // New Key
+                adminLoginLink: 'ایڈمن لاگ ان',
+                onlineStatus: '✅ آن لائن (ڈیٹا کلاؤڈ پر محفوظ ہو رہا ہے)',
+                offlineStatus: '⚠️ آف لائن (ڈیٹا مقامی طور پر محفوظ ہو رہا ہے)',
+                loadingStatus: 'انٹرنیٹ کا انتظار...',
+                toggleButtonText: 'Switch to English',
+                
+                // Form Section
+                registerNewStudentTitle: 'نیا اسٹوڈنٹ رجسٹر کریں',
+                
+                diplomaOptions: {
+                    '': '--- منتخب کریں ---',
+                    'Dip. Office Management': 'ڈپلومہ آفس مینجمنٹ',
+                    'Dip. Computer Hardware': 'ڈپلومہ کمپیوٹر ہارڈویئر',
+                    'Window Application': 'ونڈو ایپلیکیشن کورس',
+                    'Graphics Designing': 'گرافکس ڈیزائننگ',
+                    'Web Development': 'ویب ڈویلپمنٹ',
+                    'Other': 'دیگر...'
+                },
+                
+                selectDiplomaLabel: '🎓 منتخب ڈپلومہ/کورس:',
+                actualFeeLabel: '💰 اصل فیس (PKR):',
+                discountLabel: '📉 رعایت/ڈسکاؤنٹ (PKR):',
+                paymentMethodLabel: '💳 ادائیگی کا طریقہ:',
+                
+                paymentMethodOptions: {
+                    '': '--- منتخب کریں ---',
+                    'Cash': 'کیش (Cash)',
+                    'JazzCash': 'جاز کیش (JazzCash)',
+                    'Easypaisa': 'ایزی پیسہ (Easypaisa)',
+                    'Bank Transfer': 'بینک ٹرانسفر'
+                },
+                
+                finalFeeDisplayLabel: 'فائنل فیس (رعایت کے بعد):',
+                studentNameLabel: 'اسٹوڈنٹ کا نام:',
+                fatherNameLabel: 'والد کا نام:',
+                cnicLabel: 'شناختی کارڈ نمبر (CNIC):',
+                phoneLabel: 'فون نمبر:',
+                whatsappLabel: 'واٹس ایپ نمبر:',
+                addressLabel: 'ایڈریس:',
+                
+                documentSectionTitle: 'دستاویزات اور تصاویر (5 فائلیں)',
+                // UPDATED Document Note
+                documentNote: '**اہم:** فائلیں براہ راست کلاؤڈ میں **محفوظ نہیں ہوں گی**۔ صرف فارم کا اسکرین شاٹ محفوظ ہوگا۔ فائلوں کو جمع کرانے کی یہ جگہ صرف آپ کی لوکل فائلز کے نام شامل کرنے کے لیے ہے۔',
+                picStudentLabel: '1. اسٹوڈنٹ کی تصویر:',
+                cnicStudentFrontLabel: '2. اسٹوڈنٹ CNIC (فرنٹ):',
+                cnicStudentBackLabel: '3. اسٹوڈنٹ CNIC (بیک):',
+                cnicFatherFrontLabel: '4. والد CNIC (فرنٹ):',
+                cnicFatherBackLabel: '5. والد CNIC (بیک):',
+                
+                submitButtonText: '✅ رجسٹر کریں اور ڈیٹا محفوظ کریں',
+                loadingMessage: 'ڈیٹا محفوظ کیا جا رہا ہے... براہ کرم انتظار کریں۔',
+                
+                registrationSuccessMsg: 'مبارک ہو! آپ کا رجسٹریشن مکمل ہو چکا ہے۔',
+                screenshotNote: 'براہ کرم اسکرین شاٹ کو محفوظ کر لیں، یہ آپ کے ریکارڈ کا ثبوت ہے۔',
+                whatsappShareButton: '💬 واٹس ایپ پر رجسٹریشن شیئر کریں',
+                printButton: '🖨️ رسید پرنٹ کریں',
+                
+                // Admin Login
+                adminLoginTitle: 'ایڈمن پینل لاگ ان',
+                passwordLabel: 'پاس ورڈ:',
+                openAdminPanelButton: '🔓 ایڈمن پینل کھولیں',
+
+                // Admin Panel
+                registeredStudentsDataTitle: 'رجسٹرڈ اسٹوڈنٹس کا ڈیٹا',
+                adminDataNote: '**اہم:** تمام ڈیٹا کلاؤڈ پر محفوظ ہے اور آف لائن بھی دستیاب ہے۔',
+                tableHeaderHash: '#',
+                tableHeaderDate: 'تاریخ و وقت',
+                tableHeaderNameCourse: 'نام/کورس',
+                tableHeaderFeeDiscount: 'فیس/رعایت',
+                tableHeaderContact: 'رابطہ',
+                tableHeaderAction: 'عمل',
+                noDataMessage: 'ابھی تک کوئی ڈیٹا محفوظ نہیں ہے۔',
+                
+                // Backup/Recovery
+                backupRecoveryTitle: 'بیک اپ (JSON) اور ریکوری',
+                backupNote: 'ڈیٹا کریش سے بچاؤ کے لیے، تمام اسٹوڈنٹس کا ڈیٹا ایک JSON فائل میں ڈاؤن لوڈ کریں۔ یہ فائل کسی بھی نئی اکیڈمی ایپ میں اپ لوڈ ہو سکتی ہے۔',
+                downloadBackupTitle: 'ڈیٹا بیک اپ (JSON فائل میں ڈاؤن لوڈ کریں)',
+                downloadBackupButton: '⬇️ تمام ڈیٹا ڈاؤن لوڈ کریں (.json)',
+                importRecoveryTitle: 'ڈیٹا امپورٹ/ریکوری (JSON فائل اپ لوڈ کریں)',
+                
+                // Footer (UPDATED)
+                instructorName: '👨‍🏫 انسٹرکٹر: محمد کاشف اسماعیل',
+                contactNumber: `📞 رابطہ: ${NEW_CONTACT}`,
+                facebookLabel: '🌐 فیس بک: ',
+                copyrightNote: '© المہریہ کمپیوٹر اکیڈمی - تمام حقوق محفوظ ہیں۔',
+
+                // Dynamic/Alert Messages (UPDATED)
+                modalDefaultTitle: 'اطلاع', // Default modal title
+                confirmDeleteTitle: 'ریکارڈ حذف کریں', // New title for confirmation
+                confirmDelete: 'کیا آپ واقعی اس ریکارڈ کو حذف کرنا چاہتے ہیں؟ یہ عمل کلاؤڈ سے مستقل طور پر حذف ہو جائے گا۔',
+                deleteError: 'ریکارڈ حذف کرنے میں مسئلہ پیش آیا۔ آف لائن ہونے کی صورت میں یہ سِنک ہونے کا انتظار کرے گا۔',
+                authNotReady: 'Firebase Auth تیار نہیں ہے۔ براہ کرم انتظار کریں۔',
+                saveError: 'ڈیٹا محفوظ کرنے میں خرابی ہوئی، براہ کرم کنسول چیک کریں۔',
+                fetchError: 'ڈیٹا لوڈ نہیں ہو سکا، براہ کرم انٹرنیٹ یا کنسول چیک کریں۔',
+                noScreenshot: 'معذرت، فارم کا سکرین شاٹ موجود نہیں ہے۔',
+                backupNotReady: 'فائر بیس تیار نہیں ہے۔ براہ کرم ایڈمن لاگ ان ہونے کا انتظار کریں۔',
+                backupExporting: 'تمام ڈیٹا ڈاؤن لوڈ کے لیے تیار کیا جا رہا ہے... (براہ کرم سکرین نہ بدلیں)',
+                backupSuccess: (count) => `✅ بیک اپ فائل کامیابی سے ڈاؤن لوڈ ہو گئی۔ (ریکارڈز: ${count})`,
+                backupExportError: (msg) => `❌ ڈیٹا ایکسپورٹ کرنے میں خرابی ہوئی: ${msg}`,
+                importFormatError: 'JSON فائل درست فارمیٹ میں نہیں ہے۔ (یہ ایک Array ہونی چاہیے)',
+                importAuthError: 'فائر بیس کی تصدیق نہیں ہوئی۔ براہ کرم ایڈمن لاگ ان ہونے کا انتظار کریں۔',
+                importProcessing: (count) => `🚀 ${count} ریکارڈز امپورٹ کیے جا رہے ہیں۔.. براہ کرم صبر کریں۔`,
+                importSuccess: (count, error) => `✅ امپورٹ مکمل۔ ${count} ریکارڈز کامیابی سے شامل کیے گئے۔ (${error} میں خرابی)`,
+                passwordError: 'غلط پاس ورڈ! براہ کرم دوبارہ کوشش کریں۔', // Added for clarity
+                
+                // Print/Share Receipt Content
+                receiptTitle: 'رجسٹریشن رسید',
+                receiptLocation: 'مقام: مخدوم پور پہوڑاں',
+                receiptName: 'نام:',
+                receiptFather: 'والد کا نام:',
+                receiptCourse: 'کورس:',
+                receiptDate: 'تاریخِ اندراج:',
+                receiptFeeTitle: 'فیس کا مکمل حساب',
+                receiptActualFee: 'اصل فیس:',
+                receiptDiscount: 'رعایت (Discount):',
+                receiptFinalFee: 'فائنل فیس:',
+                receiptPaymentMethod: 'کے ذریعے',
+                receiptManager: 'انچارج:',
+                receiptScreenshotTitle: 'مکمل فارم کی تصویر (Screenshot)',
+                receiptScreenshotMissing: 'معذرت، اسکرین شاٹ ڈیٹا میں شامل نہیں۔',
+                receiptPrintButton: 'صرف پرنٹ کریں',
+                receiptShareButton: 'واٹس ایپ پر شیئر کریں',
+                
+                // Share Message Content
+                shareTitle: 'المہریہ کمپیوٹر اکیڈمی - رسید',
+                shareName: 'نام',
+                shareFather: 'والد کا نام',
+                shareWhatsApp: 'واٹس ایپ نمبر',
+                shareNote: 'مکمل تفصیلات کا سکرین شاٹ ایڈمن کے پاس محفوظ ہے',
+                shareContact: 'رابطہ',
+                shareManagerInfo: MANAGER_INFO_URDU,
+                
+            },
+            'en': {
+                // ... (Existing translations remain mostly the same) ...
+                // Header (UPDATED)
+                academyTitle: '💻 AL-Mehria Computer Academy',
+                academyLocation: 'Makhdumpur Pahoran',
+                academyContactHeader: `📞 ${NEW_CONTACT}`, // New Key
+                adminLoginLink: 'Admin Login',
+                onlineStatus: '✅ Online (Data is saving to Cloud)',
+                offlineStatus: '⚠️ Offline (Data is saving locally)',
+                loadingStatus: 'Waiting for Connection...',
+                toggleButtonText: 'اردو میں بدلیں',
+                
+                // Form Section
+                registerNewStudentTitle: 'Register New Student',
+                
+                diplomaOptions: {
+                    '': '--- Select ---',
+                    'Dip. Office Management': 'Dip. Office Management',
+                    'Dip. Computer Hardware': 'Dip. Computer Hardware',
+                    'Window Application': 'Window Application Course',
+                    'Graphics Designing': 'Graphics Designing',
+                    'Web Development': 'Web Development',
+                    'Other': 'Other...'
+                },
+                
+                selectDiplomaLabel: '🎓 Select Diploma/Course:',
+                actualFeeLabel: '💰 Actual Fee (PKR):',
+                discountLabel: '📉 Discount (PKR):',
+                paymentMethodLabel: '💳 Payment Method:',
+                
+                paymentMethodOptions: {
+                    '': '--- Select ---',
+                    'Cash': 'Cash',
+                    'JazzCash': 'JazzCash',
+                    'Easypaisa': 'Easypaisa',
+                    'Bank Transfer': 'Bank Transfer'
+                },
+                
+                finalFeeDisplayLabel: 'Final Fee (After Discount):',
+                studentNameLabel: 'Student Name:',
+                fatherNameLabel: 'Father Name:',
+                cnicLabel: 'CNIC Number:',
+                phoneLabel: 'Phone Number:',
+                whatsappLabel: 'WhatsApp Number:',
+                addressLabel: 'Address:',
+                
+                documentSectionTitle: 'Documents and Pictures (5 Files)',
+                // UPDATED Document Note
+                documentNote: '**Important:** Files will **not be saved** directly to the cloud. Only a screenshot of the form will be saved. This file input area is only for including the file names in the local screenshot.',
+                picStudentLabel: '1. Student Photo:',
+                cnicStudentFrontLabel: '2. Student CNIC (Front):',
+                cnicStudentBackLabel: '3. Student CNIC (Back):',
+                cnicFatherFrontLabel: '4. Father CNIC (Front):',
+                cnicFatherBackLabel: '5. Father CNIC (Back):',
+                
+                submitButtonText: '✅ Register and Save Data',
+                loadingMessage: 'Saving data... Please wait.',
+                
+                registrationSuccessMsg: 'Congratulations! Your registration is complete.',
+                screenshotNote: 'Please save the screenshot, it is proof of your record.',
+                whatsappShareButton: '💬 Share Registration on WhatsApp',
+                printButton: '🖨️ Print Receipt',
+                
+                // Admin Login
+                adminLoginTitle: 'Admin Panel Login',
+                passwordLabel: 'Password:',
+                openAdminPanelButton: '🔓 Open Admin Panel',
+
+                // Admin Panel
+                registeredStudentsDataTitle: 'Registered Students Data',
+                adminDataNote: '**Important:** All data is saved on the cloud and is also available offline.',
+                tableHeaderHash: '#',
+                tableHeaderDate: 'Date & Time',
+                tableHeaderNameCourse: 'Name/Course',
+                tableHeaderFeeDiscount: 'Fee/Discount',
+                tableHeaderContact: 'Contact',
+                tableHeaderAction: 'Action',
+                noDataMessage: 'No data saved yet.',
+                
+                // Backup/Recovery
+                backupRecoveryTitle: 'Backup (JSON) and Recovery',
+                backupNote: 'To prevent data crash, download all student data in a JSON file. This file can be uploaded to any new Academy app in the future.',
+                downloadBackupTitle: 'Data Backup (Download as JSON file)',
+                downloadBackupButton: '⬇️ Download All Data (.json)',
+                importRecoveryTitle: 'Data Import/Recovery (Upload JSON file)',
+                
+                // Footer (UPDATED)
+                instructorName: '👨‍🏫 Instructor: Muhammad Kashif Ismail',
+                contactNumber: `📞 Contact: ${NEW_CONTACT}`,
+                facebookLabel: '🌐 Facebook: ',
+                copyrightNote: '© AL-Mehria Computer Academy - All rights reserved.',
+
+                // Dynamic/Alert Messages (UPDATED)
+                modalDefaultTitle: 'Notification', // Default modal title
+                confirmDeleteTitle: 'Delete Record', // New title for confirmation
+                confirmDelete: 'Are you sure you want to delete this record? This action will permanently delete it from the cloud.',
+                deleteError: 'There was an issue deleting the record. If you are offline, it will wait to sync.',
+                authNotReady: 'Firebase Auth is not ready yet. Please wait.',
+                saveError: 'Error saving data, please check the console.',
+                fetchError: 'Could not load data, please check internet or console.',
+                noScreenshot: 'Sorry, the form screenshot is not available.',
+                backupNotReady: 'Firebase is not ready yet. Please wait for admin login.',
+                backupExporting: 'Preparing all data for download... (Please do not change screen)',
+                backupSuccess: (count) => `✅ Backup file successfully downloaded. (${count} records)`,
+                backupExportError: (msg) => `❌ Error exporting data: ${msg}`,
+                importFormatError: 'JSON file is not in the correct format. (It must be an Array)',
+                importAuthError: 'Firebase authentication is not ready. Please wait for admin login.',
+                importProcessing: (count) => `🚀 ${count} records importing... Please be patient.`,
+                importSuccess: (count, error) => `✅ Import complete. ${count} records successfully added. (${error} errors)`,
+                passwordError: 'Wrong password! Please try again.', // Added for clarity
+                
+                // Print/Share Receipt Content
+                receiptTitle: 'Registration Receipt',
+                receiptLocation: 'Location: Makhdumpur Pahoran',
+                receiptName: 'Name:',
+                receiptFather: 'Father\'s Name:',
+                receiptCourse: 'Course:',
+                receiptDate: 'Registration Date:',
+                receiptFeeTitle: 'Detailed Fee Account',
+                receiptActualFee: 'Actual Fee:',
+                receiptDiscount: 'Discount:',
+                receiptFinalFee: 'Final Fee:',
+                receiptPaymentMethod: 'via', 
+                receiptManager: 'In-Charge:',
+                receiptScreenshotTitle: 'Full Form Image (Screenshot)',
+                receiptScreenshotMissing: 'Sorry, screenshot is not included in the data.',
+                receiptPrintButton: 'Only Print',
+                receiptShareButton: 'Share on WhatsApp',
+                
+                // Share Message Content
+                shareTitle: 'AL-Mehria Computer Academy - Receipt',
+                shareName: 'Name',
+                shareFather: 'Father\'s Name',
+                shareWhatsApp: 'WhatsApp Number',
+                shareNote: 'Full details screenshot is saved with Admin',
+                shareContact: 'Contact',
+                shareManagerInfo: MANAGER_INFO_ENGLISH,
+            }
+        };
+
+        // --- CUSTOM MODAL UTILITY (Replaces window.confirm/alert) ---
+        let modalCallback = null;
+        const customModal = document.getElementById('custom-modal');
+        const modalTitleEl = document.getElementById('modal-title');
+        const modalMessageEl = document.getElementById('modal-message');
+        const modalActionsEl = document.getElementById('modal-actions');
+
+        /**
+         * Shows a custom modal for confirmation or notification.
+         * @param {string} titleKey Translation key for the title.
+         * @param {string} messageKey Translation key for the message.
+         * @param {boolean} isConfirmation If true, adds Yes/No buttons. If false, adds only an OK button.
+         * @param {function} callback Function to call when an action is taken (only for confirmation).
+         */
+        function showCustomModal(titleKey, messageKey, isConfirmation = false, callback = () => {}) {
+            const trans = translations[currentLanguage];
+            modalCallback = callback;
+
+            // Set content and direction
+            modalTitleEl.textContent = trans[titleKey] || trans.modalDefaultTitle;
+            modalMessageEl.textContent = trans[messageKey];
+            customModal.querySelector('.bg-white').dir = currentLanguage === 'ur' ? 'rtl' : 'ltr';
+
+            // Clear previous actions
+            modalActionsEl.innerHTML = '';
+            
+            // Add OK/Yes/No buttons
+            if (isConfirmation) {
+                // No button
+                const noButton = document.createElement('button');
+                noButton.textContent = currentLanguage === 'ur' ? '❌ نہیں' : '❌ No';
+                noButton.className = 'py-2 px-4 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 transition duration-150';
+                noButton.onclick = () => { customModal.classList.add('hidden'); modalCallback(false); };
+                
+                // Yes button
+                const yesButton = document.createElement('button');
+                yesButton.textContent = currentLanguage === 'ur' ? '✅ جی ہاں' : '✅ Yes';
+                yesButton.className = 'py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition duration-150';
+                yesButton.onclick = () => { customModal.classList.add('hidden'); modalCallback(true); };
+
+                // Order buttons based on language (Yes/No vs No/Yes)
+                if (currentLanguage === 'ur') {
+                    modalActionsEl.appendChild(yesButton);
+                    modalActionsEl.appendChild(noButton);
+                } else {
+                    modalActionsEl.appendChild(noButton);
+                    modalActionsEl.appendChild(yesButton);
+                }
+
+            } else {
+                // OK button for simple notifications
+                const okButton = document.createElement('button');
+                okButton.textContent = currentLanguage === 'ur' ? 'ٹھیک ہے' : 'OK';
+                okButton.className = 'py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition duration-150';
+                okButton.onclick = () => { customModal.classList.add('hidden'); };
+                modalActionsEl.appendChild(okButton);
+            }
+
+            customModal.classList.remove('hidden');
+        }
+
+
+        // --- CONNECTION STATUS UI UPDATE ---
+        const connectionStatus = document.getElementById('connection-status');
+        
+        const updateConnectionStatus = () => {
+            const trans = translations[currentLanguage];
+            const onlineText = trans.onlineStatus.replace(/\*\*/g, '');
+            const offlineText = trans.offlineStatus.replace(/\*\*/g, '');
+
+            if (navigator.onLine) {
+                connectionStatus.textContent = onlineText;
+                connectionStatus.className = 'mt-2 text-sm font-semibold p-1 rounded inline-block bg-green-100 text-green-700 hidden'; 
+            } else {
+                connectionStatus.textContent = offlineText;
+                connectionStatus.className = 'mt-2 text-sm font-semibold p-1 rounded inline-block bg-yellow-100 text-yellow-700 hidden'; 
+            }
+        };
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // --- CORE LANGUAGE FUNCTION ---
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            const isRTL = lang === 'ur';
+            document.documentElement.lang = lang;
+            document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+            
+            // Adjust body alignment
+            document.body.style.textAlign = isRTL ? 'right' : 'left'; 
+            
+            const trans = translations[lang];
+            
+            // 1. Update all elements with data-key
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                // Use innerHTML for keys that contain formatting (like **Important**)
+                if (trans[key] && (key === 'documentNote' || key === 'adminDataNote')) {
+                    el.innerHTML = trans[key];
+                } else if (trans[key]) {
+                    el.textContent = trans[key];
+                }
+            });
+            
+            // 2. Update Select Options (e.g., Diplomas, Payment Methods)
+            document.querySelectorAll('[data-key-group]').forEach(select => {
+                const groupKey = select.getAttribute('data-key-group');
+                const optionsTrans = trans[groupKey];
+                if (optionsTrans) {
+                    select.querySelectorAll('option').forEach(option => {
+                        const originalValue = option.value;
+                        if (optionsTrans[originalValue] || optionsTrans[originalValue] === '') {
+                             option.textContent = optionsTrans[originalValue];
+                        }
+                    });
+                }
+            });
+
+            // 3. Special handling for table headers
+            document.querySelectorAll('#admin-panel th[data-key]').forEach(th => {
+                const key = th.getAttribute('data-key');
+                if (trans[key]) {
+                    th.textContent = trans[key];
+                    // Align the header text based on direction
+                    th.style.textAlign = isRTL ? 'right' : 'left';
+                }
+            });
+
+            // 4. Update the toggle button text and position
+            const toggleButton = document.getElementById('language-toggle-button');
+            toggleButton.textContent = trans.toggleButtonText;
+            
+            // Adjust absolute position based on direction
+            if (isRTL) {
+                toggleButton.classList.remove('left-3');
+                toggleButton.classList.add('right-3');
+            } else {
+                toggleButton.classList.remove('right-3');
+                toggleButton.classList.add('left-3');
+            }
+            
+            // 5. Update Connection Status
+            updateConnectionStatus();
+
+            // 6. Re-render dynamic content (admin table) if visible and auth is ready
+            if (window.renderStudents && !document.getElementById('admin-panel').classList.contains('hidden') && isAuthReady) {
+                 window.renderStudents();
+            }
+        }
+
+        // --- INITIALIZATION: Ensures language is set immediately after DOM loads ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setLanguage(currentLanguage);
+            document.getElementById('language-toggle-button').addEventListener('click', () => {
+                const newLang = currentLanguage === 'ur' ? 'en' : 'ur';
+                setLanguage(newLang);
+            });
+        });
+
+
+        // --- START OF FIREBASE/APP LOGIC (Inside a safe try/catch) ---
+
+        let lastRegisteredStudent = null;
+        
+        try {
+            // Global variables provided by the Canvas environment
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+            
+            // Define the public collection path
+            STUDENTS_COLLECTION_PATH = `artifacts/${appId}/public/data/academy_students`;
+
+            setLogLevel('Debug'); // Enable Firestore logging
+            
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            // 1. Enable Offline Persistence (Crucial for user request)
+            enableIndexedDbPersistence(db)
+                .then(() => console.log("Firestore Persistence enabled successfully."))
+                .catch((err) => {
+                    if (err.code === 'failed-precondition') {
+                        console.warn("Persistence failed: Multiple tabs open.");
+                    } else if (err.code === 'unimplemented') {
+                        console.warn("Persistence failed: Browser does not support it.");
+                    } else {
+                        console.error("Persistence error:", err);
+                    }
+                });
+
+            // 2. Authentication Listener & Sign-in
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    isAuthReady = true;
+                    // Initial rendering if admin panel is already open
+                    if (!document.getElementById('admin-panel').classList.contains('hidden')) {
+                         window.renderStudents(); 
+                    }
+                    console.log("Authenticated with UID:", userId);
+                } else {
+                    // Sign in with token or anonymously
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        console.error("Auth Error:", error);
+                    }
+                }
+            });
+
+            // --- UI/UX Elements ---
+            const form = document.getElementById('student-form');
+            const tableBody = document.getElementById('student-table-body');
+            const dataView = document.getElementById('student-data-view');
+            const loginForm = document.getElementById('admin-login-form');
+            const adminPanel = document.getElementById('admin-panel');
+            const loginSection = document.getElementById('login-section');
+            const secretTrigger = document.getElementById('secret-trigger');
+            const registrationSuccess = document.getElementById('registration-success');
+            const whatsappShareButton = document.getElementById('whatsapp-share-after-reg');
+            const printAfterRegButton = document.getElementById('print-after-reg'); 
+            const submitButton = document.getElementById('submit-button');
+            const loadingMessage = document.getElementById('loading-message');
+            const importStatus = document.getElementById('import-status');
+
+
+            // Fee Calculation elements
+            const feePaidInput = document.getElementById('fee-paid');
+            const discountGivenInput = document.getElementById('discount-given');
+            const finalFeeDisplay = document.getElementById('final-fee-display');
+            const finalFeeValueInput = document.getElementById('final-fee-value'); 
+            
+            function updateFinalFee() {
+                const fee = parseFloat(feePaidInput.value) || 0;
+                const discount = parseFloat(discountGivenInput.value) || 0;
+                
+                let finalFee = fee - discount;
+                if (finalFee < 0) finalFee = 0; 
+
+                finalFeeDisplay.textContent = `${finalFee.toLocaleString()} PKR`;
+                finalFeeValueInput.value = finalFee; 
+            }
+
+            feePaidInput.addEventListener('input', updateFinalFee);
+            discountGivenInput.addEventListener('input', updateFinalFee);
+            updateFinalFee(); 
+
+            // --- 0. SECRET TRIGGER ---
+            secretTrigger.addEventListener('click', () => {
+                loginSection.classList.remove('hidden');
+                secretTrigger.classList.add('hidden');
+                document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // --- 1. Admin Login Logic ---
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const trans = translations[currentLanguage];
+                const password = document.getElementById('admin-password').value;
+                if (password === ADMIN_PASSWORD) {
+                    loginSection.classList.add('hidden');
+                    adminPanel.classList.remove('hidden');
+                    if(isAuthReady) window.renderStudents(); 
+                    adminPanel.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showCustomModal('confirmDeleteTitle', 'passwordError', false);
+                    console.error(trans.passwordError);
+                }
+            });
+            
+            // --- 2. Data Retrieval and Real-time Display (onSnapshot) ---
+            window.renderStudents = () => {
+                if (!isAuthReady) return; 
+                const trans = translations[currentLanguage];
+                const isRTL = currentLanguage === 'ur';
+
+                const studentsQuery = query(collection(db, STUDENTS_COLLECTION_PATH));
+
+                // onSnapshot listens for real-time updates and also works with cached/offline data
+                onSnapshot(studentsQuery, (snapshot) => {
+                    const students = [];
+                    snapshot.forEach(doc => {
+                        students.push({ id: doc.id, ...doc.data() }); 
+                    });
+                    
+                    // Sort by timestamp for consistent order
+                    students.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+                    tableBody.innerHTML = ''; 
+
+                    if (students.length === 0) {
+                        document.getElementById('no-data-message').classList.remove('hidden');
+                        return;
+                    }
+                    document.getElementById('no-data-message').classList.add('hidden');
+
+                    // Re-align table headers based on current language
+                    document.querySelectorAll('#admin-panel th').forEach(th => {
+                        th.style.textAlign = isRTL ? 'right' : 'left';
+                    });
+
+                    students.forEach((student, index) => {
+                        const row = tableBody.insertRow();
+                        row.className = 'hover:bg-gray-50';
+
+                        row.insertCell().textContent = index + 1;
+                        
+                        // NEW: Date/Time Column
+                        const dateCell = row.insertCell();
+                        try {
+                            const date = new Date(student.createdAt);
+                            const formattedDate = date.toLocaleDateString(isRTL ? 'ur-PK' : 'en-US', { timeZone: 'Asia/Karachi' });
+                            const formattedTime = date.toLocaleTimeString(isRTL ? 'ur-PK' : 'en-US', { timeZone: 'Asia/Karachi', hour: '2-digit', minute: '2-digit' });
+
+                            dateCell.innerHTML = `<div class="font-bold text-gray-700">${formattedDate}</div><div class="text-xs text-gray-500">${formattedTime}</div>`;
+                        } catch (e) {
+                             dateCell.textContent = isRTL ? 'تاریخ دستیاب نہیں' : 'Date N/A';
+                             console.error("Error formatting date:", e);
+                        }
+
+
+                        // Name/Course
+                        row.insertCell().innerHTML = `<div class="font-bold text-gray-900">${student.studentName}</div><div class="text-sm text-gray-500">${student.diplomaName}</div>`;
+                        
+                        // Fee/Discount
+                        row.insertCell().innerHTML = `<div class="text-sm text-green-700 font-bold">${parseFloat(student.finalFeeValue).toLocaleString()} PKR</div><div class="text-sm text-red-500">${isRTL ? 'رعایت:' : 'Discount:'} ${parseFloat(student.discountGiven).toLocaleString()} PKR</div>`;
+                        
+                        // Contact
+                        row.insertCell().innerHTML = `<div class="text-sm text-gray-900">${isRTL ? 'فون:' : 'Phone:'} ${student.phoneNumber}</div><div class="text-sm text-gray-500">${isRTL ? 'واٹس ایپ:' : 'WhatsApp:'} ${student.whatsappNumber}</div>`;
+                        
+                        // Action
+                        const actionCell = row.insertCell();
+                        actionCell.className = 'no-print text-center';
+                        actionCell.innerHTML = `
+                            <button onclick="deleteStudent('${student.id}')" class="text-red-600 hover:text-red-900 ml-2 text-sm">${isRTL ? 'حذف کریں' : 'Delete'}</button> <br>
+                            <button onclick="prepareAndPrint('${student.id}')" class="text-blue-600 hover:text-blue-900 text-sm mt-1">${isRTL ? 'پرنٹ/شیئر' : 'Print/Share'}</button> <br>
+                            <button onclick="captureDataAsImage('${student.id}', '${student.studentName}')" class="text-purple-600 hover:text-purple-900 text-sm mt-1">🖼️ ${isRTL ? 'تصویر ڈاؤن لوڈ کریں' : 'Download Image'}</button>
+                        `;
+                    });
+                }, (error) => {
+                    console.error("Firestore Snapshot Error: ", error);
+                });
+            }
+
+            // UPDATED: Using Custom Modal for Confirmation
+            window.deleteStudent = (studentId) => {
+                const trans = translations[currentLanguage];
+                showCustomModal('confirmDeleteTitle', 'confirmDelete', true, async (confirmed) => {
+                    if (confirmed) {
+                        try {
+                            await deleteDoc(doc(db, STUDENTS_COLLECTION_PATH, studentId));
+                            console.log("Record deleted successfully:", studentId);
+                        } catch (error) {
+                            console.error("Error deleting document:", error);
+                            showCustomModal('confirmDeleteTitle', 'deleteError', false);
+                        }
+                    }
+                });
+            };
+            
+            // --- 3. Form Submission (Saves Data to Firestore) ---
+            
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const trans = translations[currentLanguage];
+                
+                if (!isAuthReady) {
+                    showCustomModal('modalDefaultTitle', 'authNotReady', false);
+                    return;
+                }
+
+                submitButton.classList.add('hidden');
+                loadingMessage.classList.remove('hidden');
+
+                const currentTimestamp = new Date().toISOString(); 
+
+                const studentData = {
+                    studentName: document.getElementById('student-name').value,
+                    fatherName: document.getElementById('father-name').value,
+                    cnicNumber: document.getElementById('cnic-number').value,
+                    address: document.getElementById('address').value,
+                    phoneNumber: document.getElementById('phone-number').value,
+                    whatsappNumber: document.getElementById('whatsapp-number').value,
+                    diplomaName: document.getElementById('diploma-name').value,
+                    
+                    feePaid: document.getElementById('fee-paid').value,
+                    discountGiven: document.getElementById('discount-given').value,
+                    finalFeeValue: document.getElementById('final-fee-value').value, 
+                    paymentMethod: document.getElementById('payment-method').value,
+                    
+                    timestamp: currentTimestamp 
+                };
+                
+                let formScreenshotBase64 = '';
+                const formElement = document.getElementById('student-data-capture-area');
+                
+                // --- Screenshot Capture ---
+                try {
+                    // Temporarily hide file input text for clean screenshot
+                    const fileInputs = formElement.querySelectorAll('input[type="file"]');
+                    fileInputs.forEach(input => { input.style.color = 'transparent'; });
+
+                    // Hide the document note for a cleaner receipt
+                    const documentNote = document.querySelector('[data-key="documentNote"]');
+                    documentNote.classList.add('hidden');
+
+                    const canvas = await html2canvas(formElement, { scale: 1.5, logging: false, useCORS: true });
+                    formScreenshotBase64 = canvas.toDataURL('image/png');
+                    
+                    fileInputs.forEach(input => { input.style.color = ''; });
+                    documentNote.classList.remove('hidden'); 
+
+                } catch (error) {
+                    console.error("Screenshot failed:", error);
+                }
+
+                const newStudent = {
+                    ...studentData, 
+                    formScreenshot: formScreenshotBase64,
+                    registeredBy: userId,
+                    createdAt: currentTimestamp 
+                };
+
+                try {
+                    const docRef = await addDoc(collection(db, STUDENTS_COLLECTION_PATH), newStudent);
+                    
+                    lastRegisteredStudent = { 
+                        ...newStudent, 
+                        id: docRef.id,
+                        timestampLocale: new Date(newStudent.timestamp).toLocaleString(currentLanguage === 'ur' ? 'ur-PK' : 'en-US', { timeZone: 'Asia/Karachi' })
+                    }; 
+
+                    form.classList.add('hidden');
+                    registrationSuccess.classList.remove('hidden');
+                    form.reset(); 
+                    discountGivenInput.value = 0;
+                    feePaidInput.value = '';
+                    updateFinalFee(); 
+                    
+                    console.log('اسٹوڈنٹ کا ڈیٹا کلاؤڈ میں کامیابی سے محفوظ ہو گیا ہے۔');
+                } catch (error) {
+                    console.error("Error saving document to Firestore:", error);
+                    showCustomModal('modalDefaultTitle', 'saveError', false);
+                } finally {
+                    submitButton.classList.remove('hidden');
+                    loadingMessage.classList.add('hidden');
+                }
+            });
+
+            // --- 4. Print and Share Logic (The Receipt View) ---
+            window.getStudentData = async (studentId) => {
+                try {
+                    const docRef = doc(db, STUDENTS_COLLECTION_PATH, studentId);
+                    const docData = await getDoc(docRef);
+                    if (docData.exists()) {
+                         const data = docData.data();
+                         data.timestampLocale = new Date(data.createdAt).toLocaleString(currentLanguage === 'ur' ? 'ur-PK' : 'en-US', { timeZone: 'Asia/Karachi' });
+                         return { id: docData.id, ...data };
+                    }
+                } catch (error) {
+                    console.error("Error fetching student data for print:", error);
+                    showCustomModal('modalDefaultTitle', 'fetchError', false);
+                    return null;
+                }
+            }
+
+            window.prepareAndPrint = async (studentId) => {
+                const student = await window.getStudentData(studentId);
+                const trans = translations[currentLanguage];
+                const isRTL = currentLanguage === 'ur';
+
+                if (!student) {
+                    showCustomModal('modalDefaultTitle', 'fetchError', false);
+                    return;
+                }
+                
+                const academyLocationText = translations[currentLanguage].academyLocation;
+                const academyTitleText = translations[currentLanguage].academyTitle.replace('💻 ', '');
+
+                const imageContent = student.formScreenshot ? 
+                    `<h3 class="text-xl font-semibold mb-4 ${isRTL ? 'text-right' : 'text-left'} text-red-700">${trans.receiptScreenshotTitle}</h3>
+                     <img src="${student.formScreenshot}" style="max-width: 100%; border: 1px solid #ccc; margin-bottom: 20px;" alt="Form Screenshot">`
+                    :
+                    `<p class="text-red-600 font-bold">${trans.receiptScreenshotMissing}</p>`;
+
+                const printContent = `
+                    <div class="print-container printable-data-card" style="text-align: ${isRTL ? 'right' : 'left'};" id="student-data-card-${student.id}">
+                        <h2 class="text-2xl font-bold mb-4 border-b pb-2 text-blue-800">📜 ${academyTitleText} ${trans.receiptTitle}</h2>
+                        <p class="text-md font-semibold text-gray-700 mb-4">${trans.receiptLocation.split(':')[0]}: ${academyLocationText}</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-lg">
+                            <div><span class="font-semibold text-blue-700">${trans.receiptName}</span> ${student.studentName}</div>
+                            <div><span class="font-semibold text-blue-700">${trans.receiptFather}</span> ${student.fatherName}</div>
+                            <div><span class="font-semibold text-blue-700">${trans.receiptCourse}</span> ${student.diplomaName}</div>
+                            <div><span class="font-semibold text-blue-700">${trans.receiptDate}</span> ${student.timestampLocale}</div>
+                            
+                            <!-- Detailed Fee Account Display -->
+                            <div class="md:col-span-2 mt-4 pt-2 border-t border-dashed">
+                                <h3 class="text-xl font-bold text-gray-700 mb-2">💵 ${trans.receiptFeeTitle}</h3>
+                                <div><span class="font-semibold text-blue-700">${trans.receiptActualFee}</span> ${parseFloat(student.feePaid).toLocaleString()} PKR</div>
+                                <div><span class="font-semibold text-red-700">${trans.receiptDiscount}</span> ${parseFloat(student.discountGiven).toLocaleString()} PKR</div>
+                                <div class="text-2xl font-extrabold text-green-700 border-t mt-2 pt-2">
+                                    <span class="text-base font-semibold">${trans.receiptFinalFee}</span> ${parseFloat(student.finalFeeValue).toLocaleString()} PKR 
+                                    <span class="text-sm text-gray-500">(${student.paymentMethod} ${isRTL ? trans.receiptPaymentMethod : ''})</span>
+                                </div>
+                            </div>
+
+                            <div class="col-span-1 md:col-span-2 mt-4 pt-2 border-t text-sm">
+                                <span class="font-semibold text-blue-700">${trans.receiptManager}</span> ${isRTL ? MANAGER_INFO_URDU : MANAGER_INFO_ENGLISH}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 border-t pt-4">
+                            ${imageContent}
+                        </div>
+
+                        <!-- Print/Share Buttons (Hidden during actual print) -->
+                        <div class="no-print mt-8 flex gap-4 ${isRTL ? 'justify-end' : 'justify-start'}">
+                            <button onclick="window.print()" class="py-2 px-4 bg-purple-600 text-white rounded-md shadow-md hover:bg-purple-700">🖨️ ${trans.receiptPrintButton}</button>
+                            <button onclick="shareViaWhatsapp('${student.studentName}', '${student.fatherName}', '${student.whatsappNumber}', '${student.cnicNumber}')" class="py-2 px-4 accent-bg text-white rounded-md shadow-md hover:bg-green-700">💬 ${trans.receiptShareButton}</button>
+                        </div>
+                    </div>
+                `;
+
+                dataView.innerHTML = printContent;
+                dataView.classList.remove('hidden');
+                dataView.scrollIntoView({ behavior: 'smooth' });
+            };
+
+            // Global Share Function 
+            window.shareViaWhatsapp = (name, father, phone, cnic) => {
+                const trans = translations[currentLanguage];
+                
+                const academyTitleText = trans.academyTitle.replace('💻 ', '');
+
+                const message = `
+*📚 ${academyTitleText} - ${trans.shareTitle}*
+*${trans.shareName}:* ${name}
+*${trans.shareFather}:* ${father}
+*CNIC:* ${cnic}
+*${trans.shareWhatsApp}:* ${phone}
+*${trans.shareNote}*
+*${trans.shareContact}:* ${trans.shareManagerInfo}
+                `.trim();
+
+                const encodedMessage = encodeURIComponent(message);
+                window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+            };
+
+            // Sharing after successful registration
+            whatsappShareButton.addEventListener('click', () => {
+                if (lastRegisteredStudent) {
+                    window.shareViaWhatsapp(
+                        lastRegisteredStudent.studentName,
+                        lastRegisteredStudent.fatherName,
+                        lastRegisteredStudent.whatsappNumber,
+                        lastRegisteredStudent.cnicNumber
+                    );
+                }
+            });
+
+            // Printing after successful registration
+            printAfterRegButton.addEventListener('click', () => {
+                if (lastRegisteredStudent) {
+                    window.prepareAndPrint(lastRegisteredStudent.id);
+                    // Hide success message after starting print/view
+                    document.getElementById('registration-success').classList.add('hidden');
+                    document.getElementById('registration-form').classList.remove('hidden');
+                } else {
+                    console.log(currentLanguage === 'ur' ? 'پرنٹ کے لیے کوئی نیا ریکارڈ نہیں ملا۔' : 'No new record found for printing.');
+                }
+            });
+
+            // Image Capture Logic (Download Screenshot)
+            window.captureDataAsImage = async (studentId, studentName) => {
+                const trans = translations[currentLanguage];
+                
+                let student = null;
+                try {
+                    const docRef = doc(db, STUDENTS_COLLECTION_PATH, studentId);
+                    const docData = await getDoc(docRef);
+                    if (docData.exists()) {
+                        student = docData.data();
+                    }
+                } catch (error) {
+                    console.error("Error fetching data for download:", error);
+                    return;
+                }
+                
+                if (student && student.formScreenshot) {
+                    const link = document.createElement('a');
+                    link.download = `${studentName}_Registration_Screenshot.png`;
+                    link.href = student.formScreenshot;
+                    link.click();
+                    return;
+                }
+                
+                showCustomModal('modalDefaultTitle', 'noScreenshot', false);
+            };
+
+            // --- 5. Backup & Recovery Functions ---
+            
+            // Function to download all data as a JSON file
+            window.downloadJsonBackup = async () => {
+                const trans = translations[currentLanguage];
+                if (!isAuthReady) {
+                    showCustomModal('modalDefaultTitle', 'backupNotReady', false);
+                    return;
+                }
+                
+                try {
+                    importStatus.textContent = trans.backupExporting;
+                    importStatus.classList.remove('hidden', 'text-green-700', 'text-red-700');
+                    importStatus.classList.add('text-blue-700');
+
+                    const querySnapshot = await getDocs(collection(db, STUDENTS_COLLECTION_PATH));
+                    const allData = [];
+                    querySnapshot.forEach((doc) => {
+                        allData.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    const jsonContent = JSON.stringify(allData, null, 2);
+                    const blob = new Blob([jsonContent], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Academy_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    importStatus.textContent = trans.backupSuccess(allData.length);
+                    importStatus.classList.replace('text-blue-700', 'text-green-700');
+                    
+                } catch (error) {
+                    console.error("Error exporting data:", error);
+                    importStatus.textContent = trans.backupExportError(error.message);
+                    importStatus.classList.replace('text-blue-700', 'text-red-700');
+                }
+            };
+            
+            // Function to handle file selection and start import
+            window.handleImportFile = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const trans = translations[currentLanguage];
+
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        const jsonText = e.target.result;
+                        const dataToImport = JSON.parse(jsonText);
+                        
+                        if (!Array.isArray(dataToImport)) {
+                            throw new Error(trans.importFormatError);
+                        }
+                        
+                        await importDataToFirestore(dataToImport);
+                        
+                    } catch (error) {
+                        console.error("Import Error:", error);
+                        const errorMessage = error.message.includes('JSON file is not') ? error.message : `${trans.importRecoveryTitle}: ${error.message}`;
+
+                        importStatus.textContent = `❌ ${errorMessage}`;
+                        importStatus.classList.replace('text-blue-700', 'text-red-700');
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            // Function to perform bulk import to Firestore
+            async function importDataToFirestore(dataArray) {
+                const trans = translations[currentLanguage];
+                if (!isAuthReady) {
+                    throw new Error(trans.importAuthError);
+                }
+                
+                importStatus.textContent = trans.importProcessing(dataArray.length);
+                importStatus.classList.replace('text-green-700', 'text-blue-700');
+                importStatus.classList.remove('hidden', 'text-red-700');
+
+                let importedCount = 0;
+                let errorCount = 0;
+                const batchSize = 500; 
+
+                for (let i = 0; i < dataArray.length; i += batchSize) {
+                    const batch = writeBatch(db);
+                    const chunk = dataArray.slice(i, i + batchSize);
+
+                    for (const record of chunk) {
+                        try {
+                            const { id, ...dataWithoutId } = record; 
+                            const newDocRef = doc(collection(db, STUDENTS_COLLECTION_PATH));
+                            batch.set(newDocRef, dataWithoutId); 
+                            importedCount++;
+                        } catch (e) {
+                            console.error("Error preparing document for batch:", e, record);
+                            errorCount++;
+                        }
+                    }
+
+                    try {
+                        await batch.commit();
+                        console.log(`Batch ${i/batchSize + 1} committed successfully.`);
+                    } catch (e) {
+                        console.error("Error committing batch:", e);
+                        errorCount += chunk.length; 
+                    }
+                }
+
+                importStatus.textContent = trans.importSuccess(importedCount, errorCount);
+                importStatus.classList.replace('text-blue-700', 'text-green-700');
+
+                document.getElementById('import-json-file').value = '';
+            }
+            
+        } catch (error) {
+            console.error("Fatal Error during Firebase Initialization:", error);
+            document.getElementById('connection-status').textContent = translations.ur.loadingStatus; 
+            document.getElementById('connection-status').className = 'mt-2 text-sm font-semibold p-1 rounded inline-block bg-red-100 text-red-700 hidden'; 
+        }
+    </script>
+</body>
+</html>
